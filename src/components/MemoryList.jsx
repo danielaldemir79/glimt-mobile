@@ -1,9 +1,21 @@
 import { Text, View } from 'react-native';
+import MemoryCard from './MemoryCard';
 
-function MemoryList() {
+function MemoryList({ memories }) {
+  if (memories.length === 0) {
+    return (
+      <Text>Inga minnen ännu.</Text>
+    );
+  }
+
   return (
     <View>
-      <Text>Här kommer dina minnen att visas.</Text>
+      {memories.map((memory) => (
+        <MemoryCard
+          key={memory.id}
+          memory={memory}
+        />
+      ))}
     </View>
   );
 }

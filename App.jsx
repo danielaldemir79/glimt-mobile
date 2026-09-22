@@ -1,9 +1,32 @@
+import { useEffect, useState } from 'react';
+import { getMemories } from './src/api/memoryApi';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import MemoryList from './src/components/MemoryList';
 
 export default function App() {
+  const [memories, setMemories] = useState([]);
+  const [loadError, setLoadError] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadMemories() {
+      try {
+        setLoadError('');
+
+        const apiMemories = await getMemories();
+        setMemories(apiMemories);
+      } catch {
+        setLoadError('Kunde inte hämta dina minnen.');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    loadMemories();
+  }, []);
+
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.safeArea}>
@@ -14,10 +37,21 @@ export default function App() {
           <Text style={styles.subtitle}>Din fotodagbok</Text>
         </View>
 
-        <View style={styles.content}>
+        <ScrollView
+          style={styles.content}
+          contentContainerStyle={styles.contentContainer}
+        >
           <Text style={styles.sectionTitle}>Senaste minnen</Text>
-          <MemoryList />
-        </View>
+          
+          {isLoading ? (
+            <Text>Hämtar minnen...</Text>
+          ) : loadError ? (
+            <Text>{loadError}</Text>
+          ) : (
+            <MemoryList memories={memories} />
+          )}
+          
+        </ScrollView>
       </SafeAreaView>
     </SafeAreaProvider>
   );
@@ -45,7 +79,10 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     backgroundColor: '#F7F8F5',
+  },
+  contentContainer: {
     padding: 24,
+    paddingBottom: 40,
   },
   sectionTitle: {
     color: '#1D2927',
