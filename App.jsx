@@ -1,14 +1,26 @@
 import { useEffect, useState } from 'react';
 import { getMemories } from './src/api/memoryApi';
 import { StatusBar } from 'expo-status-bar';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Button, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import MemoryList from './src/components/MemoryList';
+import MemoryForm from './src/components/MemoryForm';
 
 export default function App() {
   const [memories, setMemories] = useState([]);
   const [loadError, setLoadError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+
+  function addMemory(createdMemory) {
+  setMemories((currentMemories) =>
+    [createdMemory, ...currentMemories].sort(
+      (firstMemory, secondMemory) =>
+        secondMemory.date.localeCompare(firstMemory.date),
+    ),
+  );
+  setIsFormOpen(false);
+}
 
   useEffect(() => {
     async function loadMemories() {
@@ -16,7 +28,12 @@ export default function App() {
         setLoadError('');
 
         const apiMemories = await getMemories();
-        setMemories(apiMemories);
+        setMemories(
+          [...apiMemories].sort(
+            (firstMemory, secondMemory) =>
+              secondMemory.date.localeCompare(firstMemory.date),
+          ),
+        );
       } catch {
         setLoadError('Kunde inte hämta dina minnen.');
       } finally {
@@ -41,6 +58,15 @@ export default function App() {
           style={styles.content}
           contentContainerStyle={styles.contentContainer}
         >
+          <Button
+            title={isFormOpen ? 'Stäng formulär' : 'Nytt minne'}
+            onPress={() => setIsFormOpen((currentValue) => !currentValue)}
+            color="#315C52"
+          />
+
+          {isFormOpen && (
+            <MemoryForm onMemoryCreated={addMemory} />
+          )}
           <Text style={styles.sectionTitle}>Senaste minnen</Text>
           
           {isLoading ? (
