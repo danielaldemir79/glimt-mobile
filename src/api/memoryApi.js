@@ -57,4 +57,20 @@ async function uploadImage(image) {
   return response.json();
 }
 
-export { API_BASE_URL, getMemories, createMemory, uploadImage };
+async function updateMemory(id, memory) {
+  const response = await fetch(`${API_URL}/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(memory),
+  });
+
+  if (!response.ok) {
+    throw new Error('Kunde inte uppdatera minnet.');
+  }
+
+  return response.json();
+}
+
+export { API_BASE_URL, getMemories, createMemory, uploadImage, updateMemory };

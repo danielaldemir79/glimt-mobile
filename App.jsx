@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { getMemories } from './src/api/memoryApi';
 import { StatusBar } from 'expo-status-bar';
 import { Button, ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -11,16 +11,42 @@ export default function App() {
   const [loadError, setLoadError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingMemory, setEditingMemory] = useState(null);
+  const scrollViewRef = useRef(null);
 
-  function addMemory(createdMemory) {
-  setMemories((currentMemories) =>
-    [createdMemory, ...currentMemories].sort(
-      (firstMemory, secondMemory) =>
-        secondMemory.date.localeCompare(firstMemory.date),
-    ),
-  );
-  setIsFormOpen(false);
-}
+  function handleMemorySaved(savedMemory) {
+    setMemories((currentMemories) => {
+      if (editingMemory) {
+        return currentMemories
+          .map((memory) =>
+            memory.id === savedMemory.id ? savedMemory : memory,
+          )
+          .sort((firstMemory, secondMemory) =>
+            secondMemory.date.localeCompare(firstMemory.date),
+          );
+      }
+
+      return [savedMemory, ...currentMemories].sort(
+        (firstMemory, secondMemory) =>
+          secondMemory.date.localeCompare(firstMemory.date),
+      );
+    });
+
+    setEditingMemory(null);
+    setIsFormOpen(false);
+  }
+
+  function startEditing(memory) {
+    setEditingMemory(memory);
+    setIsFormOpen(true);
+
+    requestAnimationFrame(() => {
+      scrollViewRef.current?.scrollTo({
+        y: 0,
+        animated: true,
+      });
+    });
+  }
 
   useEffect(() => {
     async function loadMemories() {
@@ -55,28 +81,38 @@ export default function App() {
         </View>
 
         <ScrollView
+          ref={scrollViewRef}
           style={styles.content}
           contentContainerStyle={styles.contentContainer}
         >
           <Button
             title={isFormOpen ? 'Stäng formulär' : 'Nytt minne'}
-            onPress={() => setIsFormOpen((currentValue) => !currentValue)}
+            onPress={() => {
+              if (isFormOpen) {
+                setEditingMemory(null);
+              }
+
+              setIsFormOpen((currentValue) => !currentValue);
+            }}
             color="#315C52"
           />
 
           {isFormOpen && (
-            <MemoryForm onMemoryCreated={addMemory} />
+            <MemoryForm
+              onMemoryCreated={handleMemorySaved}
+              editingMemory={editingMemory}
+            />
           )}
           <Text style={styles.sectionTitle}>Senaste minnen</Text>
-          
+
           {isLoading ? (
             <Text>Hämtar minnen...</Text>
           ) : loadError ? (
             <Text>{loadError}</Text>
           ) : (
-            <MemoryList memories={memories} />
+            <MemoryList memories={memories} onEdit={startEditing} />
           )}
-          
+
         </ScrollView>
       </SafeAreaView>
     </SafeAreaProvider>

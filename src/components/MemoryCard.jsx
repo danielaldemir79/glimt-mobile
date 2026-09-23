@@ -1,7 +1,7 @@
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { Button, Image, StyleSheet, Text, View } from 'react-native';
 import { API_BASE_URL } from '../api/memoryApi';
 
-function MemoryCard({ memory }) {
+function MemoryCard({ memory, onEdit }) {
   return (
     <View style={styles.card}>
       {memory.imagePath && (
@@ -16,6 +16,11 @@ function MemoryCard({ memory }) {
       <Text style={styles.date}>{memory.date}</Text>
       <Text style={styles.title}>{memory.title}</Text>
       <Text style={styles.description}>{memory.description}</Text>
+      <Button
+        title="Redigera"
+        onPress={() => onEdit(memory)}
+        color="#315C52"
+      />
     </View>
   );
 }

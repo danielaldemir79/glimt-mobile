@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Button,
   StyleSheet,
@@ -7,10 +7,10 @@ import {
   View,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import { createMemory, uploadImage } from '../api/memoryApi';
+import { createMemory, updateMemory, uploadImage } from '../api/memoryApi';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
-function MemoryForm({ onMemoryCreated }) {
+function MemoryForm({ onMemoryCreated, editingMemory }) {
   const [title, setTitle] = useState('');
   const [date, setDate] = useState('');
   const [description, setDescription] = useState('');
@@ -19,16 +19,26 @@ function MemoryForm({ onMemoryCreated }) {
   const [isSaving, setIsSaving] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
 
+  useEffect(() => {
+    if (!editingMemory) {
+      return;
+    }
 
-function handleDateChange(selectedDate) {
-  setShowDatePicker(false);
+    setTitle(editingMemory.title);
+    setDate(editingMemory.date);
+    setDescription(editingMemory.description);
+    setSelectedImage(null);
+  }, [editingMemory]);
 
-  const year = selectedDate.getFullYear();
-  const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
-  const day = String(selectedDate.getDate()).padStart(2, '0');
+  function handleDateChange(selectedDate) {
+    setShowDatePicker(false);
 
-  setDate(`${year}-${month}-${day}`);
-}
+    const year = selectedDate.getFullYear();
+    const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+    const day = String(selectedDate.getDate()).padStart(2, '0');
+
+    setDate(`${year}-${month}-${day}`);
+  }
 
   async function pickImage() {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -41,45 +51,62 @@ function handleDateChange(selectedDate) {
     }
   }
 
- async function handleSubmit() {
-  if (isSaving) {
-    return;
+  async function handleSubmit() {
+    if (isSaving) {
+      return;
+    }
+
+    if (!title || !date || !description) {
+      setFormError('Fyll i alla fält.');
+      return;
+    }
+
+    try {
+      setIsSaving(true);
+      setFormError('');
+
+      let imagePath = editingMemory?.imagePath;
+
+      if (selectedImage) {
+        const uploadResult = await uploadImage(selectedImage);
+        imagePath = uploadResult.imagePath;
+      }
+
+      const memoryData = {
+        title,
+        date,
+        description,
+        imagePath,
+      };
+
+      if (editingMemory) {
+        const updatedMemory = await updateMemory(
+          editingMemory.id,
+          memoryData,
+        );
+
+        onMemoryCreated(updatedMemory);
+      } else {
+        const createdMemory = await createMemory(memoryData);
+        onMemoryCreated(createdMemory);
+      }
+
+      setTitle('');
+      setDate('');
+      setDescription('');
+      setSelectedImage(null);
+    } catch (error) {
+      setFormError(error.message);
+    } finally {
+      setIsSaving(false);
+    }
   }
-
-  if (!title || !date || !description || !selectedImage) {
-    setFormError('Fyll i alla fält och välj en bild.');
-    return;
-  }
-
-  try {
-    setIsSaving(true);
-    setFormError('');
-
-    const uploadResult = await uploadImage(selectedImage);
-
-    const createdMemory = await createMemory({
-      title,
-      date,
-      description,
-      imagePath: uploadResult.imagePath,
-    });
-
-    onMemoryCreated(createdMemory);
-
-    setTitle('');
-    setDate('');
-    setDescription('');
-    setSelectedImage(null);
-  } catch (error) {
-    setFormError(error.message);
-  } finally {
-    setIsSaving(false);
-  }
-}
 
   return (
     <View style={styles.form}>
-      <Text style={styles.heading}>Nytt minne</Text>
+      <Text style={styles.heading}>
+        {editingMemory ? 'Redigera minne' : 'Nytt minne'}
+      </Text>
 
       <Text>Titel</Text>
       <TextInput
@@ -100,9 +127,7 @@ function handleDateChange(selectedDate) {
           value={date ? new Date(`${date}T00:00:00`) : new Date()}
           mode="date"
           maximumDate={new Date()}
-          onValueChange={(_, selectedDate) =>
-            handleDateChange(selectedDate)
-          }
+          onValueChange={(_, selectedDate) => handleDateChange(selectedDate)}
           onDismiss={() => setShowDatePicker(false)}
         />
       )}
