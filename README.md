@@ -146,11 +146,14 @@ Mobilappen kan:
 - välja och ladda upp JPG, JPEG, PNG eller WEBP
 - visa uppladdade bilder
 - redigera titel, datum och beskrivning
+- begränsa titeln till 45 tecken och visa en teckenräknare
 - behålla en befintlig bild vid redigering
 - ersätta en befintlig bild med en ny bild
 - uppdatera rätt minneskort direkt efter PUT
 - sortera minnen från nyast till äldst
 - visa ett tomläge när listan saknar minnen
+- visa korta förhandsvisningar av titel och beskrivning i listan
+- öppna en detaljvy med hela bilden, titeln och beskrivningen
 - visa begripliga felmeddelanden när ett anrop misslyckas
 
 
@@ -266,8 +269,15 @@ När användaren trycker på `Redigera` öppnas formuläret med det valda minnet
 värden. Appen scrollar till formulärets början så att det märks att redigering
 har startat.
 
-Vi använder vanliga stora React Native-knappar och tydliga felmeddelanden för
-att appen ska fungera på små skärmar och vara lätt att förstå.
+Minneskorten visar bara en kort förhandsvisning av titel och beskrivning. När
+användaren trycker på `Visa hela minnet` öppnas en detaljvy med React Native
+`Modal`. Där visas hela bilden utan beskärning och hela texten kan läsas i en
+egen `ScrollView`.
+
+Vi använder en större `Pressable` för `Nytt minne`, eftersom det är appens
+viktigaste huvudåtgärd. Knapparna på minneskorten är enklare, och har luft
+mellan sig så att de inte upplevs som en enda tryckyta. Tydliga felmeddelanden
+och stora tryckytor gör appen lättare att använda på små skärmar.
 
 ### Felhantering
 
@@ -291,7 +301,6 @@ stället köras bakom HTTPS och en riktig serveradress.
 Följande delar är medvetet inte byggda ännu:
 
 - ta bort minnen med React Native `Alert`
-- detaljvy med React Native `Modal`
 - dra ned för att uppdatera listan
 - automatisk synkning mellan webbappen och mobilappen
 - automatisk scroll till ett äldre minne efter redigering

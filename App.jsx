@@ -1,7 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { getMemories } from './src/api/memoryApi';
 import { StatusBar } from 'expo-status-bar';
-import { Button, ScrollView, StyleSheet, Text, View } from 'react-native';
+import {
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import MemoryList from './src/components/MemoryList';
 import MemoryForm from './src/components/MemoryForm';
@@ -85,8 +91,8 @@ export default function App() {
           style={styles.content}
           contentContainerStyle={styles.contentContainer}
         >
-          <Button
-            title={isFormOpen ? 'Stäng formulär' : 'Nytt minne'}
+          <Pressable
+            style={styles.newMemoryButton}
             onPress={() => {
               if (isFormOpen) {
                 setEditingMemory(null);
@@ -94,8 +100,11 @@ export default function App() {
 
               setIsFormOpen((currentValue) => !currentValue);
             }}
-            color="#315C52"
-          />
+          >
+            <Text style={styles.newMemoryButtonText}>
+              {isFormOpen ? 'Stäng formulär' : 'Nytt minne'}
+            </Text>
+          </Pressable>
 
           {isFormOpen && (
             <MemoryForm
@@ -112,7 +121,6 @@ export default function App() {
           ) : (
             <MemoryList memories={memories} onEdit={startEditing} />
           )}
-
         </ScrollView>
       </SafeAreaView>
     </SafeAreaProvider>
@@ -145,6 +153,20 @@ const styles = StyleSheet.create({
   contentContainer: {
     padding: 24,
     paddingBottom: 40,
+  },
+  newMemoryButton: {
+    alignItems: 'center',
+    backgroundColor: '#315C52',
+    borderRadius: 8,
+    justifyContent: 'center',
+    marginBottom: 20,
+    minHeight: 52,
+    paddingHorizontal: 20,
+  },
+  newMemoryButtonText: {
+    color: '#FFFFFF',
+    fontSize: 17,
+    fontWeight: '700',
   },
   sectionTitle: {
     color: '#1D2927',

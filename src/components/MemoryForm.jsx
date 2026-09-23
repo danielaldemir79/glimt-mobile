@@ -112,8 +112,13 @@ function MemoryForm({ onMemoryCreated, editingMemory }) {
       <TextInput
         style={styles.input}
         value={title}
+        maxLength={45}
         onChangeText={setTitle}
       />
+
+      <Text style={styles.characterCount}>
+        {title.length}/45 tecken
+      </Text>
 
       <Text>Datum</Text>
       <Button
@@ -201,6 +206,11 @@ const styles = StyleSheet.create({
   selectedImage: {
     marginBottom: 12,
     marginTop: 8,
+  },
+  characterCount: {
+    color: '#596663',
+    fontSize: 12,
+    marginBottom: 12,
   },
 });
 
