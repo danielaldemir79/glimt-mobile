@@ -265,6 +265,11 @@ samma bilder från samma API.
 eller andra skärmkanter. `ScrollView` används eftersom formuläret och listan
 kan bli längre än mobilens skärm.
 
+Innehållet har en maxbredd på 600 pixlar och centreras på bredare skärmar.
+På vanliga mobiler använder appen den tillgängliga bredden. Det gör att
+formulär och minneskort inte blir onödigt breda på foldable-telefoner,
+surfplattor och större webbläsarfönster.
+
 När användaren trycker på `Redigera` öppnas formuläret med det valda minnets
 värden. Appen scrollar till formulärets början så att det märks att redigering
 har startat.

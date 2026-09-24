@@ -173,4 +173,11 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: '700',
   },
+  contentContainer: {
+    alignSelf: 'center',
+    maxWidth: 600,
+    padding: 24,
+    paddingBottom: 40,
+    width: '100%',
+  },
 });
