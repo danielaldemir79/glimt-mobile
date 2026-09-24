@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { getMemories } from './src/api/memoryApi';
+import { deleteMemory, getMemories } from './src/api/memoryApi';
 import { StatusBar } from 'expo-status-bar';
 import {
   Pressable,
@@ -40,6 +40,19 @@ export default function App() {
 
     setEditingMemory(null);
     setIsFormOpen(false);
+  }
+
+  async function handleMemoryDeleted(memoryId) {
+    await deleteMemory(memoryId);
+
+    setMemories((currentMemories) =>
+      currentMemories.filter((memory) => memory.id !== memoryId),
+    );
+
+    if (editingMemory?.id === memoryId) {
+      setEditingMemory(null);
+      setIsFormOpen(false);
+    }
   }
 
   function startEditing(memory) {
@@ -119,7 +132,7 @@ export default function App() {
           ) : loadError ? (
             <Text>{loadError}</Text>
           ) : (
-            <MemoryList memories={memories} onEdit={startEditing} />
+            <MemoryList memories={memories} onEdit={startEditing} onDelete={handleMemoryDeleted} />
           )}
         </ScrollView>
       </SafeAreaView>

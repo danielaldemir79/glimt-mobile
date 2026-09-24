@@ -121,8 +121,10 @@ Det är viktigt att API terminalen fortsätter köra medan mobilappen testas.
 Öppna en andra terminal i mobilrepots rotmapp och kör:
 
 ```bash
-npx expo start --tunnel
+npx expo start --lan
 ```
+
+Datorn och mobilen måste vara anslutna till samma lokala nätverk.
 
 När Expo visar en QR-kod:
 
@@ -146,6 +148,7 @@ Mobilappen kan:
 - välja och ladda upp JPG, JPEG, PNG eller WEBP
 - visa uppladdade bilder
 - redigera titel, datum och beskrivning
+- ta bort minnen efter en bekräftelse
 - begränsa titeln till 45 tecken och visa en teckenräknare
 - behålla en befintlig bild vid redigering
 - ersätta en befintlig bild med en ny bild
@@ -183,7 +186,7 @@ installationsfil.
 
 - `MemoryForm.jsx` visar formuläret och sparar nya eller redigerade minnen.
 - `MemoryList.jsx` visar listan och hanterar tomläget.
-- `MemoryCard.jsx` visar ett enskilt minne och knappen för redigering.
+- `MemoryCard.jsx` visar ett enskilt minne, detaljvyn och knappar för redigering och borttagning.
 
 Den här indelningen gör koden lättare att läsa och ändra. Formuläret behöver
 inte känna till hur hela listan lagras, utan meddelar `App.jsx` när sparningen
@@ -192,7 +195,7 @@ inte känna till hur hela listan lagras, utan meddelar `App.jsx` när sparningen
 ### API-lager och miljövariabel
 
 API-anropen ligger samlade i `src/api/memoryApi.js`. Där finns funktionerna för
-GET, POST, PUT och bilduppladdning. På så sätt behöver URL:er och HTTP-anrop
+GET, POST, PUT, DELETE och bilduppladdning. På så sätt behöver URL:er och HTTP-anrop
 inte upprepas i flera komponenter.
 
 API-adressen läses från `EXPO_PUBLIC_API_URL`. Vi valde en miljövariabel
@@ -214,6 +217,7 @@ Appen använder följande HTTP-metoder:
 - GET hämtar alla minnen när appen startar.
 - POST skapar ett nytt minne.
 - PUT uppdaterar ett befintligt minne.
+- DELETE tar bort ett befintligt minne.
 - POST till `/api/Images` laddar upp en bild innan minnet sparas.
 
 När API:t har svarat uppdateras appens state direkt. Därför behöver användaren
@@ -290,12 +294,11 @@ API-funktionerna kontrollerar HTTP-svaret. Om ett anrop misslyckas kastas ett
 fel som visas i formuläret eller i listans laddningsläge. Appen kraschar därför
 inte bara för att API:t är avstängt eller att ett anrop misslyckas.
 
-### Utvecklingsmiljö och tunnel
+### Utvecklingsmiljö och LAN
 
-`npx expo start --tunnel` används under testning för att Expo Go ska kunna hämta
-utvecklingsversionen av appen även när den vanliga lokala anslutningen inte
-fungerar. Tunneln gäller Expo-utvecklingsservern. Själva API-anropet går
-fortfarande till datorns lokala IP-adress i `.env.local`.
+`npx expo start --lan` används under testning så att Expo Go kan hämta
+utvecklingsversionen direkt från datorn via det lokala nätverket. Datorn och
+mobilen måste därför vara anslutna till samma nätverk.
 
 Vi använder HTTP till API:t i mobilens lokala utvecklingsmiljö eftersom det gör
 anslutningen från Expo Go enkel. I en publicerad applikation skulle API:t i
@@ -305,7 +308,6 @@ stället köras bakom HTTPS och en riktig serveradress.
 
 Följande delar är medvetet inte byggda ännu:
 
-- ta bort minnen med React Native `Alert`
 - dra ned för att uppdatera listan
 - automatisk synkning mellan webbappen och mobilappen
 - automatisk scroll till ett äldre minne efter redigering

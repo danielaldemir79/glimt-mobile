@@ -73,4 +73,17 @@ async function updateMemory(id, memory) {
   return response.json();
 }
 
-export { API_BASE_URL, getMemories, createMemory, uploadImage, updateMemory };
+async function deleteMemory(id) {
+  const response = await fetch(`${API_URL}/${id}`, {
+    method: 'DELETE',
+  });
+
+  if (!response.ok) {
+    const errorMessage = await response.text();
+    throw new Error(errorMessage || 'Kunde inte ta bort minnet.');
+  }
+
+  return true;
+}
+
+export { API_BASE_URL, getMemories, createMemory, uploadImage, updateMemory, deleteMemory };

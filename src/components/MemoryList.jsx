@@ -1,7 +1,7 @@
 import { Text, View } from 'react-native';
 import MemoryCard from './MemoryCard';
 
-function MemoryList({ memories, onEdit }) {
+function MemoryList({ memories, onEdit, onDelete }) {
   if (memories.length === 0) {
     return (
       <Text>Inga minnen ännu.</Text>
@@ -15,6 +15,7 @@ function MemoryList({ memories, onEdit }) {
           key={memory.id}
           memory={memory}
           onEdit={onEdit}
+          onDelete={onDelete}
         />
       ))}
     </View>

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import {
+  Alert,
   Button,
   Image,
   Modal,
@@ -11,8 +12,33 @@ import {
 } from 'react-native';
 import { API_BASE_URL } from '../api/memoryApi';
 
-function MemoryCard({ memory, onEdit }) {
+function MemoryCard({ memory, onEdit, onDelete }) {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+
+  function handleDeletePress() {
+    Alert.alert(
+      'Ta bort minnet?',
+      'Det här minnet kommer att tas bort permanent.',
+      [
+        {
+          text: 'Avbryt',
+          style: 'cancel',
+        },
+        {
+          text: 'Ta bort',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await onDelete(memory.id);
+              setIsDetailsOpen(false);
+            } catch {
+              Alert.alert('Kunde inte ta bort minnet.');
+            }
+          },
+        },
+      ],
+    );
+  }
 
   return (
     <>
@@ -38,12 +64,21 @@ function MemoryCard({ memory, onEdit }) {
           onPress={() => setIsDetailsOpen(true)}
           color="#315C52"
         />
-        <View style={styles.buttonSpacing}>
-          <Button
-            title="Redigera"
-            onPress={() => onEdit(memory)}
-            color="#315C52"
-          />
+        <View style={styles.buttonRow}>
+          <View style={styles.buttonColumn}>
+            <Button
+              title="Redigera"
+              onPress={() => onEdit(memory)}
+              color="#315C52"
+            />
+          </View>
+          <View style={styles.buttonColumn}>
+            <Button
+              title="Ta bort"
+              onPress={handleDeletePress}
+              color="#9B2C2C"
+            />
+          </View>
         </View>
       </View>
       <Modal
@@ -148,10 +183,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
   },
-  buttonSpacing: {
+  buttonRow: {
+    flexDirection: 'row',
+    gap: 8,
     marginTop: 8,
   },
-
+  buttonColumn: {
+    flex: 1,
+  },
 });
 
 export default MemoryCard;
