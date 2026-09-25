@@ -163,10 +163,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F7F8F5',
   },
-  contentContainer: {
-    padding: 24,
-    paddingBottom: 40,
-  },
   newMemoryButton: {
     alignItems: 'center',
     backgroundColor: '#315C52',

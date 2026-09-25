@@ -1,7 +1,7 @@
 # Glimt mobilapp
 
-Glimt är en mobil fotodagbok där användaren kan skapa och redigera minnen
-med titel, datum, beskrivning och valfri bild.
+Glimt är en mobil fotodagbok där användaren kan skapa, visa, redigera och
+ta bort minnen med titel, datum, beskrivning och valfri bild.
 
 Mobilappen är byggd med React Native och Expo. Den använder samma ASP.NET Core
 Web API och SQLite-databas som webbappen.
@@ -10,7 +10,7 @@ Web API och SQLite-databas som webbappen.
 
 Du behöver ha följande installerat:
 
-- Node.js
+- Node.js 22.12 eller senare
 - npm
 - Expo Go på mobilen
 - .NET 10 SDK för API:t
@@ -18,6 +18,19 @@ Du behöver ha följande installerat:
 Mobilen och datorn behöver vara anslutna till samma nätverk. Stäng gärna av
 VPN under testet eftersom det kan göra att mobilen inte hittar datorns lokala
 IP adress.
+
+## Innan du startar mobilappen
+
+Backend måste vara installerad, databasen skapad och API:t startat innan
+mobilappen kan köras.
+
+Följ avsnitten `Installera och skapa databasen` och
+`Starta API:t för mobilappen` i backend repots README:
+
+https://github.com/danielaldemir79/glimt-api
+
+Låt API terminalen fortsätta köra. Återgå sedan till den här sidan och följ
+stegen nedan. Om API:t inte körs kan mobilappen inte hämta eller spara minnen.
 
 ## Klona repot
 
@@ -56,8 +69,14 @@ datorns lokala IPv4-adress.
 3. Leta efter `IPv4 Address` under det nätverkskort som datorn faktiskt
 	använder för samma nätverk som mobilen. Använd inte en frånkopplad adapter,
 	VPN-adapter eller virtuell adapter.
-4. Skapa en fil som heter `.env.local` i mobilrepots rotmapp.
-5. Skriv följande rad i filen och byt ut IP-adressen:
+4. Kontrollera att terminalen står i mobilrepots rotmapp och skapa
+   `.env.local` från exempelfilen:
+
+	```powershell
+	Copy-Item .env.example .env.local
+	```
+
+5. Öppna `.env.local` och ersätt `DIN-IP-ADRESS` med datorns IPv4 adress:
 
 	```text
 	EXPO_PUBLIC_API_URL=http://DIN-IP-ADRESS:5097
@@ -75,46 +94,24 @@ Filen `.env.example` visar vilket format som ska användas.
 Om datorns lokala IP adress ändras behöver värdet i `.env.local` ändras också.
 Starta sedan om Expo så att den nya miljövariabeln läses in.
 
-## Starta API:t
+## Kontrollera anslutningen till API:t
 
-API:t finns i det separata repot `glimt-api`. Klona det bredvid mobilrepot om
-det inte redan finns på datorn:
+Kontrollera anslutningen innan Expo startas:
 
-```bash
-git clone https://github.com/danielaldemir79/glimt-api.git
-```
+1. Kontrollera att API terminalen fortfarande kör.
+2. Öppna mobilens webbläsare och gå till adressen nedan. Byt ut
+	`DIN-IP-ADRESS` mot samma IPv4 adress som finns i `.env.local`:
 
-Öppna en ny terminal i API-repots rotmapp och kör först:
+	```text
+	http://DIN-IP-ADRESS:5097/api/MemoryEntries
+	```
 
-```bash
-dotnet restore
-dotnet ef database update
-```
+3. Anslutningen fungerar om webbläsaren visar en tom lista `[]` eller en lista
+	med minnen i JSON format.
 
-Om `dotnet ef` saknas, installera verktyget en gång:
-
-```bash
-dotnet tool install --global dotnet-ef --version 10.0.12
-```
-
-Flaggan `--global` gör att `dotnet-ef` installeras som ett kommando som kan
-användas från valfri terminalmapp. Verktyget behöver bara installeras en gång
-på datorn.
-
-Starta därefter API:t på HTTP-port `5097`:
-
-```bash
-dotnet run --no-launch-profile --urls http://0.0.0.0:5097
-```
-
-Låt terminalen vara öppen. API:t är startat när terminalen visar ungefär:
-
-```text
-Now listening on: http://0.0.0.0:5097
-Application started
-```
-
-Det är viktigt att API terminalen fortsätter köra medan mobilappen testas.
+Om sidan inte kan öppnas ska du kontrollera att API:t kör, att IP adressen är
+rätt och att datorn och mobilen är anslutna till samma nätverk. Kontrollera
+även att Windows brandvägg tillåter `dotnet` på privata nätverk.
 
 ## Starta mobilappen
 
@@ -125,6 +122,8 @@ npx expo start --lan
 ```
 
 Datorn och mobilen måste vara anslutna till samma lokala nätverk.
+Om Windows brandvägg frågar om nätverksåtkomst ska du tillåta Node.js på
+privata nätverk.
 
 När Expo visar en QR-kod:
 
