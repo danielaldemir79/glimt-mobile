@@ -3,14 +3,12 @@ import {
   Alert,
   Button,
   Image,
-  Modal,
-  Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
 import { API_BASE_URL } from '../api/memoryApi';
+import MemoryDetails from './MemoryDetails';
 
 function MemoryCard({ memory, onEdit, onDelete }) {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
@@ -81,38 +79,12 @@ function MemoryCard({ memory, onEdit, onDelete }) {
           </View>
         </View>
       </View>
-      <Modal
-        animationType="slide"
+
+      <MemoryDetails
+        memory={memory}
         visible={isDetailsOpen}
-        onRequestClose={() => setIsDetailsOpen(false)}
-      >
-        <View style={styles.modalContainer}>
-          <ScrollView contentContainerStyle={styles.detailsContent}>
-            {memory.imagePath && (
-              <Image
-                source={{
-                  uri: `${API_BASE_URL}${memory.imagePath}`,
-                }}
-                style={styles.detailsImage}
-                resizeMode="contain"
-              />
-            )}
-
-            <Text style={styles.date}>{memory.date}</Text>
-            <Text style={styles.detailsTitle}>{memory.title}</Text>
-            <Text style={styles.detailsDescription}>
-              {memory.description}
-            </Text>
-          </ScrollView>
-
-          <Pressable
-            style={styles.closeButton}
-            onPress={() => setIsDetailsOpen(false)}
-          >
-            <Text style={styles.closeButtonText}>Stäng</Text>
-          </Pressable>
-        </View>
-      </Modal>
+        onClose={() => setIsDetailsOpen(false)}
+      />
     </>
   );
 }
@@ -145,43 +117,6 @@ const styles = StyleSheet.create({
     height: 180,
     borderRadius: 4,
     marginBottom: 12,
-  },
-  modalContainer: {
-    flex: 1,
-    backgroundColor: '#F7F8F5',
-    padding: 24,
-  },
-  detailsContent: {
-    paddingBottom: 24,
-  },
-  detailsImage: {
-    width: '100%',
-    height: 300,
-    marginBottom: 16,
-  },
-  detailsTitle: {
-    color: '#1D2927',
-    fontSize: 26,
-    fontWeight: '700',
-    marginTop: 4,
-  },
-  detailsDescription: {
-    color: '#33413E',
-    fontSize: 17,
-    lineHeight: 24,
-    marginTop: 12,
-  },
-  closeButton: {
-    alignItems: 'center',
-    backgroundColor: '#315C52',
-    borderRadius: 6,
-    justifyContent: 'center',
-    minHeight: 48,
-  },
-  closeButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '700',
   },
   buttonRow: {
     flexDirection: 'row',
